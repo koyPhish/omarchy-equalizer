@@ -136,6 +136,25 @@ If you rename the entry point, restart the shell rather than rescanning —
 the shell keeps resolving the old file and reports the rename as
 "File name case mismatch", which is neither a case nor a filesystem problem.
 
+## What it runs, and what it writes
+
+Plugins run unsandboxed inside the shell, so here is everything this one
+executes and every file it touches.
+
+| Command | When | Why |
+|---|---|---|
+| `bash -c "exec cava -p …"` | While the widget is mounted | The visualizer. One process for the whole bar; a second one only while the panel is open. The cava config is passed through a process substitution, so no config file is written |
+| `omarchy bar set <id> style <value>` | Only when you click the style picker | Persists your choice |
+| `omarchy-audio-output-set-default` | Only when you click an output device | Inherited from `omarchy.audio` |
+| `omarchy-audio-input-set-default` | Only when you click an input device | Inherited from `omarchy.audio` |
+| `omarchy-audio-sink-availability` | Every 5s while the panel is open | Read-only |
+| `omarchy-audio-output-sink` | Every 15s | Read-only |
+
+The only file it ever writes is its **own widget entry** in
+`~/.config/omarchy/shell.json` — the `style` key, and only on an explicit
+click. It never writes to any other part of your config, never asks for root,
+and never contacts the network.
+
 ## Credits
 
 The audio panel — volume slider, output picker, per-app mixer, and the
