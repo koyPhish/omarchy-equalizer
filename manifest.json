@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "id": "io.github.koyphish.equalizer",
+  "name": "Equalizer",
+  "version": "1.0.0",
+  "author": "koyPhish",
+  "license": "MIT",
+  "description": "The Omarchy audio widget with a live cava spectrum in place of the speaker icon",
+  "homepage": "https://github.com/koyPhish/omarchy-equalizer",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Equalizer.qml"
+  },
+  "barWidget": {
+    "displayName": "Equalizer",
+    "description": "Spectrum bars while audio plays, speaker icon when it stops. Click for the full audio panel \u2014 volume, output picker, per-app mixer \u2014 plus a large visualizer and a style picker.",
+    "category": "Audio",
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "bars": 12,
+      "barWidth": 3,
+      "gap": 2,
+      "framerate": 30,
+      "noiseReduction": 77,
+      "channels": "mono",
+      "source": "auto",
+      "autoHide": true,
+      "hideAfterSeconds": 3,
+      "heightPercent": 70,
+      "style": "bars",
+      "panelBars": 32,
+      "panelFramerate": 60
+    },
+    "schema": [
+      {
+        "key": "style",
+        "type": "enum",
+        "label": "Visualizer style",
+        "options": [
+          "bars",
+          "grounded",
+          "blocks",
+          "dots"
+        ],
+        "defaultValue": "bars",
+        "description": "Also switchable from the picker inside the panel."
+      },
+      {
+        "key": "bars",
+        "type": "integer",
+        "label": "Bars in the bar",
+        "min": 2,
+        "max": 64,
+        "step": 1,
+        "defaultValue": 12
+      },
+      {
+        "key": "barWidth",
+        "type": "integer",
+        "label": "Bar thickness (px)",
+        "min": 1,
+        "max": 12,
+        "step": 1,
+        "defaultValue": 3
+      },
+      {
+        "key": "gap",
+        "type": "integer",
+        "label": "Gap between bars (px)",
+        "min": 0,
+        "max": 8,
+        "step": 1,
+        "defaultValue": 2
+      },
+      {
+        "key": "heightPercent",
+        "type": "integer",
+        "label": "Height (% of bar)",
+        "min": 20,
+        "max": 100,
+        "step": 5,
+        "defaultValue": 70
+      },
+      {
+        "key": "framerate",
+        "type": "integer",
+        "label": "Bar framerate (fps)",
+        "min": 10,
+        "max": 144,
+        "step": 5,
+        "defaultValue": 30,
+        "description": "One cava process is shared by every monitor."
+      },
+      {
+        "key": "panelBars",
+        "type": "integer",
+        "label": "Bars in the panel",
+        "min": 8,
+        "max": 96,
+        "step": 1,
+        "defaultValue": 32
+      },
+      {
+        "key": "panelFramerate",
+        "type": "integer",
+        "label": "Panel framerate (fps)",
+        "min": 10,
+        "max": 144,
+        "step": 5,
+        "defaultValue": 60,
+        "description": "Only runs while the panel is open."
+      },
+      {
+        "key": "noiseReduction",
+        "type": "integer",
+        "label": "Smoothing (%)",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "defaultValue": 77,
+        "description": "Higher is calmer, lower is twitchier."
+      },
+      {
+        "key": "channels",
+        "type": "enum",
+        "label": "Channels",
+        "options": [
+          "mono",
+          "stereo"
+        ],
+        "defaultValue": "mono"
+      },
+      {
+        "key": "source",
+        "type": "string",
+        "label": "PipeWire source",
+        "defaultValue": "auto",
+        "description": "Leave as auto to follow the default output."
+      },
+      {
+        "key": "autoHide",
+        "type": "boolean",
+        "label": "Show icon when silent",
+        "defaultValue": true,
+        "description": "Off keeps the bars up even with nothing playing."
+      },
+      {
+        "key": "hideAfterSeconds",
+        "type": "integer",
+        "label": "Fall back after (seconds)",
+        "min": 1,
+        "max": 60,
+        "step": 1,
+        "defaultValue": 3
+      }
+    ]
+  }
+}
