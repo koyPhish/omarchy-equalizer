@@ -73,8 +73,10 @@ Panel {
 
   function setVizStyle(value) {
     if (!value || value === root.vizStyle) return
+    // Util.shellQuote, not bar.shellQuote — the bar has no such method, and
+    // calling it throws before the write ever happens.
     if (root.bar) root.bar.run("omarchy bar set " + root.moduleName + " style "
-                               + root.bar.shellQuote(value))
+                               + Util.shellQuote(value))
   }
 
   function vizOnPowerSave(active) { root.powerSaverActive = active }
