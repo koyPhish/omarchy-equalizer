@@ -1293,6 +1293,7 @@ Panel {
 
       Text {
         text: root.nodeLabel(sinkRow.node)
+        textFormat: Text.PlainText
         color: root.bar.foreground
         font.family: root.bar.fontFamily
         font.pixelSize: Style.font.body
@@ -1352,6 +1353,7 @@ Panel {
 
       Text {
         text: root.nodeLabel(sourceRow.node)
+        textFormat: Text.PlainText
         color: root.bar.foreground
         font.family: root.bar.fontFamily
         font.pixelSize: Style.font.body
@@ -1432,6 +1434,7 @@ Panel {
 
         Text {
           text: root.streamLabel(streamRow.node)
+          textFormat: Text.PlainText
           color: root.bar.foreground
           font.family: root.bar.fontFamily
           font.pixelSize: Style.font.body
