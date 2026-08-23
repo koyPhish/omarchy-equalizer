@@ -15,7 +15,6 @@ var _subscribers = []
 var _nextId = 1
 var _lastLevels = []
 var _lastPeak = 0
-var _lastStyle = ""
 
 function claim(candidate) {
   if (_owner === null || _owner === undefined) _owner = candidate
@@ -53,15 +52,11 @@ function publish(levels, peak) {
   for (var i = 0; i < _subscribers.length; i++) _subscribers[i].onFrame(levels, peak)
 }
 
-// The style picker takes effect on every monitor at once, without waiting for
-// a trip through shell.json — writing that file reloads the widget, which
-// would close the very panel the user is clicking in.
+// The style picker takes effect on every monitor at once, rather than each
+// surface waiting to notice the shell.json write independently.
 function publishStyle(style) {
-  _lastStyle = style
   for (var i = 0; i < _subscribers.length; i++) _subscribers[i].onStyle(style)
 }
-
-function lastStyle() { return _lastStyle }
 
 // A surface mounted after the first frame would otherwise draw nothing until
 // the next one; handing it the last frame keeps a new monitor in step.

@@ -4,6 +4,10 @@ The Omarchy audio widget with a live spectrum analyzer in place of the
 speaker icon. It is a drop-in replacement for `omarchy.audio`: same volume
 slider, output picker and per-app mixer, plus a visualizer.
 
+<p align="center">
+  <img src="preview.png" alt="The equalizer in the bar, and the audio panel with its visualizer" width="420">
+</p>
+
 [cava](https://github.com/karlstav/cava) does the FFT against the default
 PipeWire output monitor and streams one ascii frame per tick on stdout;
 `Cava.qml` parses those frames and `Spectrum.qml` draws them.
@@ -24,7 +28,24 @@ will have two audio widgets in your bar.
 
 Requires PipeWire, which is Omarchy's default.
 
+### Removing it
+
+```bash
+omarchy plugin remove io.github.koyphish.equalizer
+omarchy plugin enable omarchy.audio
+```
+
+The only thing this plugin ever writes outside its own directory is its own
+widget entry in `shell.json` — the bar position it is given, and the `style`
+you pick in the panel. `omarchy plugin remove` takes that entry with it.
+Nothing else in your config is touched, and `cava` stays installed unless you
+remove it yourself with `omarchy pkg remove cava`.
+
 ## Behaviour
+
+<p align="center">
+  <img src="docs/bar.png" alt="Playing versus silent in the bar" width="380">
+</p>
 
 - **In the bar:** spectrum bars while audio is playing, and the ordinary
   speaker/headphone icon once it stops — the widget animates between the two
@@ -48,9 +69,13 @@ Requires PipeWire, which is Omarchy's default.
 `Bars` (centered), `Ground` (rising from the floor), `Blocks` (segmented
 LED columns), `Dots` (a dot riding each band's level).
 
-Picking one in the panel applies to every monitor immediately. It is written
-back to `shell.json` only once the panel closes, because that write reloads
-the widget and would otherwise close the panel out from under the click.
+<p align="center">
+  <img src="docs/styles.png" alt="The four visualizer styles" width="620">
+</p>
+
+Picking one in the panel applies to every monitor immediately and is written
+straight back to `shell.json`, so it survives a restart. The panel stays open
+through the write.
 
 ## One cava, however many monitors
 

@@ -61,21 +61,17 @@ Panel {
   readonly property real openPanelIndicatorWidth: Math.max(10, Math.round(button.implicitWidth * 0.55))
   readonly property real openPanelIndicatorHeight: Math.max(10, Math.round(button.implicitHeight * 0.55))
 
+  // Broadcast paints the new choice on every monitor at once; the write to
+  // shell.json is what makes it survive a restart. The override exists only
+  // to cover the few hundred ms before that write loops back as settings.
   function setEqStyle(value) {
     if (!value || value === root.eqStyle) return
     CavaHub.publishStyle(value)
+    if (root.bar) root.bar.run("omarchy bar set " + root.moduleName + " style "
+                               + root.bar.shellQuote(value))
   }
 
   function eqOnStyle(style) { root.eqStyleOverride = style }
-
-  // Persisting rewrites shell.json, which reloads the widget and takes the
-  // popup down with it — so it waits until the popup is closed anyway.
-  function persistEqStyle() {
-    if (root.eqStyleOverride === "") return
-    if (root.eqStyleOverride === setting("style", "bars")) return
-    if (root.bar) root.bar.run("omarchy bar set " + root.moduleName + " style "
-                               + root.bar.shellQuote(root.eqStyleOverride))
-  }
 
   function eqOnFrame(levels, peak) {
     root.eqLevels = levels
@@ -90,7 +86,6 @@ Panel {
   Component.onCompleted: {
     root.eqHubId = CavaHub.subscribe(root.eqOnFrame, root.eqOnStyle)
     root.eqLevels = CavaHub.lastLevels()
-    if (CavaHub.lastStyle() !== "") root.eqStyleOverride = CavaHub.lastStyle()
     root.eqTryClaim()
   }
 
@@ -442,7 +437,6 @@ Panel {
       Qt.callLater(resetScroll)
     } else {
       clearDisplayAudioModels()
-      root.persistEqStyle()
     }
   }
 
