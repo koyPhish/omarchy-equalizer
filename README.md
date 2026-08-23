@@ -122,13 +122,13 @@ strings do not.
 
 | File          | What it is                                              |
 |---------------|---------------------------------------------------------|
-| `Equalizer.qml` | Entry point: the audio panel plus the equalizer wiring |
+| `BarWidget.qml` | Entry point: the audio panel plus the equalizer wiring |
 | `Spectrum.qml`  | The renderer — one frame, four styles                  |
 | `Cava.qml`      | One cava process, config to level arrays               |
 | `CavaHub.js`    | Cross-monitor ownership and frame/style fan-out        |
 | `Model.js`      | Audio helpers, copied from `omarchy.audio`             |
 
-`Equalizer.qml` and `Model.js` started as copies of
+`BarWidget.qml` and `Model.js` started as copies of
 `$OMARCHY_PATH/shell/plugins/panels/audio/{Panel.qml,Model.js}` (Omarchy, MIT),
 so an upstream change to the audio panel has to be merged in by hand.
 

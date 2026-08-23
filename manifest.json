@@ -11,7 +11,7 @@
     "bar-widget"
   ],
   "entryPoints": {
-    "barWidget": "Equalizer.qml"
+    "barWidget": "BarWidget.qml"
   },
   "barWidget": {
     "displayName": "Equalizer",
