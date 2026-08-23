@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "id": "io.github.koyphish.equalizer",
-  "name": "Equalizer",
+  "id": "io.github.koyphish.audio-visualizer",
+  "name": "Audio Visualizer",
   "version": "1.0.0",
   "author": "koyPhish",
   "license": "MIT",
   "description": "The Omarchy audio widget with a live cava spectrum in place of the speaker icon",
-  "homepage": "https://github.com/koyPhish/omarchy-equalizer",
+  "homepage": "https://github.com/koyPhish/omarchy-audio-visualizer",
   "kinds": [
     "bar-widget"
   ],
@@ -14,7 +14,7 @@
     "barWidget": "BarWidget.qml"
   },
   "barWidget": {
-    "displayName": "Equalizer",
+    "displayName": "Audio Visualizer",
     "description": "Spectrum bars while audio plays, speaker icon when it stops. Click for the full audio panel \u2014 volume, output picker, per-app mixer \u2014 plus a large visualizer and a style picker.",
     "category": "Audio",
     "allowMultiple": false,

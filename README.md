@@ -1,11 +1,11 @@
-# Equalizer
+# Audio Visualizer
 
 The Omarchy audio widget with a live spectrum analyzer in place of the
 speaker icon. It is a drop-in replacement for `omarchy.audio`: same volume
 slider, output picker and per-app mixer, plus a visualizer.
 
 <p align="center">
-  <img src="preview.png" alt="The equalizer in the bar, and the audio panel with its visualizer" width="420">
+  <img src="preview.png" alt="The audio panel with its visualizer" width="420">
 </p>
 
 [cava](https://github.com/karlstav/cava) does the FFT against the default
@@ -16,7 +16,7 @@ PipeWire output monitor and streams one ascii frame per tick on stdout;
 
 ```bash
 omarchy pkg add cava
-omarchy plugin add https://github.com/koyPhish/omarchy-equalizer.git --enable
+omarchy plugin add https://github.com/koyPhish/omarchy-audio-visualizer.git --enable
 omarchy plugin disable omarchy.audio
 ```
 
@@ -31,7 +31,7 @@ Requires PipeWire, which is Omarchy's default.
 ### Removing it
 
 ```bash
-omarchy plugin remove io.github.koyphish.equalizer
+omarchy plugin remove io.github.koyphish.audio-visualizer
 omarchy plugin enable omarchy.audio
 ```
 
@@ -94,9 +94,9 @@ long as the panel is open.
 Change these from Setup > Plugins, or with `omarchy bar set`:
 
 ```bash
-omarchy bar set io.github.koyphish.equalizer bars 20
-omarchy bar set io.github.koyphish.equalizer channels stereo
-omarchy bar set io.github.koyphish.equalizer autoHide false --json
+omarchy bar set io.github.koyphish.audio-visualizer bars 20
+omarchy bar set io.github.koyphish.audio-visualizer channels stereo
+omarchy bar set io.github.koyphish.audio-visualizer autoHide false --json
 ```
 
 | Key                | Default  | What it does                                       |
@@ -122,7 +122,7 @@ strings do not.
 
 | File          | What it is                                              |
 |---------------|---------------------------------------------------------|
-| `BarWidget.qml` | Entry point: the audio panel plus the equalizer wiring |
+| `BarWidget.qml` | Entry point: the audio panel plus the visualizer wiring |
 | `Spectrum.qml`  | The renderer — one frame, four styles                  |
 | `Cava.qml`      | One cava process, config to level arrays               |
 | `CavaHub.js`    | Cross-monitor ownership and frame/style fan-out        |

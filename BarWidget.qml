@@ -11,25 +11,25 @@ import "CavaHub.js" as CavaHub
 
 Panel {
   id: root
-  moduleName: "io.github.koyphish.equalizer"
-  ipcTarget: "io.github.koyphish.equalizer"
+  moduleName: "io.github.koyphish.audio-visualizer"
+  ipcTarget: "io.github.koyphish.audio-visualizer"
 
-  // ── Equalizer ────────────────────────────────────────────────────────
-  readonly property int eqBars: Math.max(2, Math.min(64, setting("bars", 12)))
-  readonly property int eqBarWidth: Math.max(1, Math.min(12, setting("barWidth", 3)))
-  readonly property int eqGap: Math.max(0, Math.min(8, setting("gap", 2)))
-  readonly property int eqFramerate: Math.max(10, Math.min(144, setting("framerate", 30)))
-  readonly property int eqNoise: Math.max(0, Math.min(100, setting("noiseReduction", 77)))
-  readonly property string eqChannels: setting("channels", "mono") === "stereo" ? "stereo" : "mono"
-  readonly property string eqSource: setting("source", "auto")
-  readonly property bool eqAutoHide: setting("autoHide", true)
-  readonly property int eqHideAfterMs: Math.max(1, setting("hideAfterSeconds", 3)) * 1000
-  readonly property int eqHeightPercent: Math.max(20, Math.min(100, setting("heightPercent", 70)))
-  readonly property int eqPanelBars: Math.max(8, Math.min(96, setting("panelBars", 32)))
-  readonly property int eqPanelFramerate: Math.max(10, Math.min(144, setting("panelFramerate", 60)))
-  readonly property int eqPanelGap: 3
+  // ── Visualizer ───────────────────────────────────────────────────────
+  readonly property int vizBars: Math.max(2, Math.min(64, setting("bars", 12)))
+  readonly property int vizBarWidth: Math.max(1, Math.min(12, setting("barWidth", 3)))
+  readonly property int vizGap: Math.max(0, Math.min(8, setting("gap", 2)))
+  readonly property int vizFramerate: Math.max(10, Math.min(144, setting("framerate", 30)))
+  readonly property int vizNoise: Math.max(0, Math.min(100, setting("noiseReduction", 77)))
+  readonly property string vizChannels: setting("channels", "mono") === "stereo" ? "stereo" : "mono"
+  readonly property string vizSource: setting("source", "auto")
+  readonly property bool vizAutoHide: setting("autoHide", true)
+  readonly property int vizHideAfterMs: Math.max(1, setting("hideAfterSeconds", 3)) * 1000
+  readonly property int vizHeightPercent: Math.max(20, Math.min(100, setting("heightPercent", 70)))
+  readonly property int vizPanelBars: Math.max(8, Math.min(96, setting("panelBars", 32)))
+  readonly property int vizPanelFramerate: Math.max(10, Math.min(144, setting("panelFramerate", 60)))
+  readonly property int vizPanelGap: 3
 
-  readonly property var eqStyleOptions: [
+  readonly property var vizStyleOptions: [
     { value: "bars", label: "Bars" },
     { value: "grounded", label: "Ground" },
     { value: "blocks", label: "Blocks" },
@@ -39,23 +39,23 @@ Panel {
   // The picker writes through `omarchy bar set`, which round-trips via
   // shell.json. The override paints the new choice straight away instead of
   // waiting for that to land, then clears itself once settings agree.
-  property string eqStyleOverride: ""
-  readonly property string eqStyle: eqStyleOverride !== "" ? eqStyleOverride : setting("style", "bars")
-  onSettingsChanged: if (eqStyleOverride !== "" && setting("style", "bars") === eqStyleOverride) eqStyleOverride = ""
+  property string vizStyleOverride: ""
+  readonly property string vizStyle: vizStyleOverride !== "" ? vizStyleOverride : setting("style", "bars")
+  onSettingsChanged: if (vizStyleOverride !== "" && setting("style", "bars") === vizStyleOverride) vizStyleOverride = ""
 
   readonly property bool barVertical: bar ? bar.vertical : false
-  readonly property int eqExtent: Math.max(2, Math.round((bar ? bar.barSize : 26) * eqHeightPercent / 100))
+  readonly property int vizExtent: Math.max(2, Math.round((bar ? bar.barSize : 26) * vizHeightPercent / 100))
 
-  property var eqLevels: []
-  property var eqPanelLevels: []
-  property double eqLastSoundAt: 0
-  property bool eqLive: false
-  property bool eqOwner: false
-  property int eqHubId: 0
+  property var vizLevels: []
+  property var vizPanelLevels: []
+  property double vizLastSoundAt: 0
+  property bool vizLive: false
+  property bool vizOwner: false
+  property int vizHubId: 0
 
   // Silence falls back to the plain speaker icon, and so does a cava that
   // never produced a frame — better a working volume widget than a gap.
-  readonly property bool showSpectrum: (!eqAutoHide || eqLive) && !barCava.failed
+  readonly property bool showSpectrum: (!vizAutoHide || vizLive) && !barCava.failed
 
   // The open-panel dot tracks the icon rather than the full spectrum width.
   readonly property real openPanelIndicatorWidth: Math.max(10, Math.round(button.implicitWidth * 0.55))
@@ -64,73 +64,73 @@ Panel {
   // Broadcast paints the new choice on every monitor at once; the write to
   // shell.json is what makes it survive a restart. The override exists only
   // to cover the few hundred ms before that write loops back as settings.
-  function setEqStyle(value) {
-    if (!value || value === root.eqStyle) return
+  function setVizStyle(value) {
+    if (!value || value === root.vizStyle) return
     CavaHub.publishStyle(value)
     if (root.bar) root.bar.run("omarchy bar set " + root.moduleName + " style "
                                + root.bar.shellQuote(value))
   }
 
-  function eqOnStyle(style) { root.eqStyleOverride = style }
+  function vizOnStyle(style) { root.vizStyleOverride = style }
 
-  function eqOnFrame(levels, peak) {
-    root.eqLevels = levels
+  function vizOnFrame(levels, peak) {
+    root.vizLevels = levels
     if (peak >= barCava.silenceFloor) {
-      root.eqLastSoundAt = Date.now()
-      root.eqLive = true
+      root.vizLastSoundAt = Date.now()
+      root.vizLive = true
     }
   }
 
-  function eqTryClaim() { root.eqOwner = CavaHub.claim(root) }
+  function vizTryClaim() { root.vizOwner = CavaHub.claim(root) }
 
   Component.onCompleted: {
-    root.eqHubId = CavaHub.subscribe(root.eqOnFrame, root.eqOnStyle)
-    root.eqLevels = CavaHub.lastLevels()
-    root.eqTryClaim()
+    root.vizHubId = CavaHub.subscribe(root.vizOnFrame, root.vizOnStyle)
+    root.vizLevels = CavaHub.lastLevels()
+    root.vizTryClaim()
   }
 
   Component.onDestruction: {
-    CavaHub.unsubscribe(root.eqHubId)
+    CavaHub.unsubscribe(root.vizHubId)
     CavaHub.release(root)
   }
 
   // One cava for the whole bar, however many monitors it spans.
   Cava {
     id: barCava
-    bars: root.eqBars
-    framerate: root.eqFramerate
-    noiseReduction: root.eqNoise
-    channels: root.eqChannels
-    source: root.eqSource
-    running: root.eqOwner
+    bars: root.vizBars
+    framerate: root.vizFramerate
+    noiseReduction: root.vizNoise
+    channels: root.vizChannels
+    source: root.vizSource
+    running: root.vizOwner
     onFrame: function(levels, peak) { CavaHub.publish(levels, peak) }
   }
 
   // A second, finer-grained one that lives only as long as the popup is up.
   Cava {
     id: panelCava
-    bars: root.eqPanelBars
-    framerate: root.eqPanelFramerate
-    noiseReduction: root.eqNoise
-    channels: root.eqChannels
-    source: root.eqSource
+    bars: root.vizPanelBars
+    framerate: root.vizPanelFramerate
+    noiseReduction: root.vizNoise
+    channels: root.vizChannels
+    source: root.vizSource
     running: root.opened
-    onFrame: function(levels, peak) { root.eqPanelLevels = levels }
+    onFrame: function(levels, peak) { root.vizPanelLevels = levels }
   }
 
   // Ownership falls vacant when the surface holding it goes away.
   Timer {
     interval: 5000
     repeat: true
-    running: !root.eqOwner
-    onTriggered: root.eqTryClaim()
+    running: !root.vizOwner
+    onTriggered: root.vizTryClaim()
   }
 
   Timer {
     interval: 250
     repeat: true
-    running: root.eqAutoHide
-    onTriggered: root.eqLive = (Date.now() - root.eqLastSoundAt) < root.eqHideAfterMs
+    running: root.vizAutoHide
+    onTriggered: root.vizLive = (Date.now() - root.vizLastSoundAt) < root.vizHideAfterMs
   }
 
 
@@ -778,18 +778,18 @@ Panel {
   Spectrum {
     id: barSpectrum
     anchors.centerIn: parent
-    levels: root.eqLevels
-    bandCount: root.eqBars
-    thickness: root.eqBarWidth
-    gap: root.eqGap
-    blockCount: Math.max(3, Math.floor(root.eqExtent / 4))
+    levels: root.vizLevels
+    bandCount: root.vizBars
+    thickness: root.vizBarWidth
+    gap: root.vizGap
+    blockCount: Math.max(3, Math.floor(root.vizExtent / 4))
     blockGap: 1
     vertical: root.barVertical
-    style: root.eqStyle
+    style: root.vizStyle
     tint: root.bar ? root.bar.foreground : "white"
-    extent: root.eqExtent
-    width: root.barVertical ? root.eqExtent : span
-    height: root.barVertical ? span : root.eqExtent
+    extent: root.vizExtent
+    width: root.barVertical ? root.vizExtent : span
+    height: root.barVertical ? span : root.vizExtent
     opacity: root.showSpectrum ? 1 : 0
     visible: opacity > 0
     Behavior on opacity { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
@@ -950,16 +950,16 @@ Panel {
               Spectrum {
                 anchors.centerIn: parent
                 visible: !panelCava.failed
-                levels: root.eqPanelLevels
-                bandCount: root.eqPanelBars
-                gap: root.eqPanelGap
+                levels: root.vizPanelLevels
+                bandCount: root.vizPanelBars
+                gap: root.vizPanelGap
                 thickness: Math.max(2, Math.floor(
                   (panelSpectrumFrame.width - Style.space(16)
-                   - (root.eqPanelBars - 1) * root.eqPanelGap) / root.eqPanelBars))
+                   - (root.vizPanelBars - 1) * root.vizPanelGap) / root.vizPanelBars))
                 blockCount: 8
                 blockGap: 3
                 animationMs: 40
-                style: root.eqStyle
+                style: root.vizStyle
                 tint: root.bar.foreground
                 width: span
                 height: panelSpectrumFrame.height - Style.space(20)
@@ -978,13 +978,13 @@ Panel {
 
             ButtonGroup {
               anchors.horizontalCenter: parent.horizontalCenter
-              options: root.eqStyleOptions
-              value: root.eqStyle
+              options: root.vizStyleOptions
+              value: root.vizStyle
               foreground: root.bar.foreground
               background: root.bar.background
               fontFamily: root.bar.fontFamily
               focusable: false
-              onChanged: function(value) { root.setEqStyle(value) }
+              onChanged: function(value) { root.setVizStyle(value) }
             }
           }
 
