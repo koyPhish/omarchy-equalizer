@@ -119,7 +119,7 @@ omarchy bar set io.github.koyphish.audio-visualizer autoHide false --json
 | `panelFramerate`   | `60`     | Panel framerate; only runs while the panel is open  |
 | `noiseReduction`   | `77`     | Smoothing; higher is calmer, lower is twitchier     |
 | `channels`         | `mono`   | `stereo` mirrors left and right                     |
-| `source`           | `auto`   | PipeWire source; `auto` follows the default output  |
+| `audioSource`      | `auto`   | PipeWire source; `auto` follows the default output  |
 | `autoHide`         | `true`   | Fall back to the icon when audio is silent          |
 | `pauseOnPowerSaver`| `true`   | Stop cava while the power profile is `power-saver`  |
 | `hideAfterSeconds` | `3`      | How long silence must last first                    |

@@ -21,7 +21,9 @@ Panel {
   readonly property int vizFramerate: Math.max(10, Math.min(144, setting("framerate", 30)))
   readonly property int vizNoise: Math.max(0, Math.min(100, setting("noiseReduction", 77)))
   readonly property string vizChannels: setting("channels", "mono") === "stereo" ? "stereo" : "mono"
-  readonly property string vizSource: setting("source", "auto")
+  // NOT "source": the bar treats a `source` key on a layout entry as a custom
+  // QML module path and swaps the whole widget out for a Loader.
+  readonly property string vizSource: setting("audioSource", "auto")
   readonly property bool vizAutoHide: setting("autoHide", true)
   readonly property int vizHideAfterMs: Math.max(1, setting("hideAfterSeconds", 3)) * 1000
   readonly property int vizHeightPercent: Math.max(20, Math.min(100, setting("heightPercent", 70)))
