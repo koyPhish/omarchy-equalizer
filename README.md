@@ -55,6 +55,10 @@ remove it yourself with `omarchy pkg remove cava`.
 - **In the panel:** the full audio panel with a larger 60fps visualizer on
   top and a style picker under it.
 - Works in vertical bars: bands stack down the bar and levels grow sideways.
+- **On the `power-saver` profile** the visualizer pauses and cava stops, then
+  comes back on its own when you leave that profile. Your chosen style is not
+  touched — the panel says `Paused on power saver` and keeps it selected. Turn
+  this off with `pauseOnPowerSaver` if you would rather it always run.
 
 ## Interaction
 
@@ -67,7 +71,11 @@ remove it yourself with `omarchy pkg remove cava`.
 ## Styles
 
 `Bars` (centered), `Ground` (rising from the floor), `Blocks` (segmented
-LED columns), `Dots` (a dot riding each band's level).
+LED columns), `Dots` (a dot riding each band's level), and `Off`.
+
+`Off` is a real off switch, not a blank style: it stops cava outright, and the
+widget falls back to the plain speaker icon. You keep a working audio widget
+at zero cost.
 
 <p align="center">
   <img src="docs/styles.png" alt="The four visualizer styles" width="620">
@@ -101,7 +109,7 @@ omarchy bar set io.github.koyphish.audio-visualizer autoHide false --json
 
 | Key                | Default  | What it does                                       |
 |--------------------|----------|----------------------------------------------------|
-| `style`            | `bars`   | `bars`, `grounded`, `blocks`, `dots`                |
+| `style`            | `bars`   | `bars`, `grounded`, `blocks`, `dots`, `none` (off)  |
 | `bars`             | `12`     | Bands in the bar widget                             |
 | `barWidth`         | `3`      | Bar thickness in px                                 |
 | `gap`              | `2`      | Gap between bars in px                              |
@@ -113,6 +121,7 @@ omarchy bar set io.github.koyphish.audio-visualizer autoHide false --json
 | `channels`         | `mono`   | `stereo` mirrors left and right                     |
 | `source`           | `auto`   | PipeWire source; `auto` follows the default output  |
 | `autoHide`         | `true`   | Fall back to the icon when audio is silent          |
+| `pauseOnPowerSaver`| `true`   | Stop cava while the power profile is `power-saver`  |
 | `hideAfterSeconds` | `3`      | How long silence must last first                    |
 
 Boolean and numeric values need `--json` when set from the command line;
@@ -149,6 +158,7 @@ executes and every file it touches.
 | `omarchy-audio-input-set-default` | Only when you click an input device | Inherited from `omarchy.audio` |
 | `omarchy-audio-sink-availability` | Every 5s while the panel is open | Read-only |
 | `omarchy-audio-output-sink` | Every 15s | Read-only |
+| `omarchy-powerprofiles-list --active-state` | Every 60s, on the surface that owns cava only | Read-only; drives the power-saver pause. Not run at all when `pauseOnPowerSaver` is off |
 
 The only file it ever writes is its **own widget entry** in
 `~/.config/omarchy/shell.json` — the `style` key, and only on an explicit

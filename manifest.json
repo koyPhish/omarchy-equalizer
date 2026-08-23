@@ -32,7 +32,8 @@
       "heightPercent": 70,
       "style": "bars",
       "panelBars": 32,
-      "panelFramerate": 60
+      "panelFramerate": 60,
+      "pauseOnPowerSaver": true
     },
     "schema": [
       {
@@ -43,10 +44,11 @@
           "bars",
           "grounded",
           "blocks",
-          "dots"
+          "dots",
+          "none"
         ],
         "defaultValue": "bars",
-        "description": "Also switchable from the picker inside the panel."
+        "description": "\"none\" turns the visualizer off and stops cava. Also switchable from the picker inside the panel."
       },
       {
         "key": "bars",
@@ -155,6 +157,13 @@
         "max": 60,
         "step": 1,
         "defaultValue": 3
+      },
+      {
+        "key": "pauseOnPowerSaver",
+        "type": "boolean",
+        "label": "Pause on power-saver profile",
+        "defaultValue": true,
+        "description": "Stops cava while the system power profile is power-saver. Your chosen style is kept and comes back with the profile."
       }
     ]
   }

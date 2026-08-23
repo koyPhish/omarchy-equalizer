@@ -33,15 +33,25 @@ Panel {
     { value: "bars", label: "Bars" },
     { value: "grounded", label: "Ground" },
     { value: "blocks", label: "Blocks" },
-    { value: "dots", label: "Dots" }
+    { value: "dots", label: "Dots" },
+    { value: "none", label: "Off" }
   ]
 
-  // The picker writes through `omarchy bar set`, which round-trips via
-  // shell.json. The override paints the new choice straight away instead of
-  // waiting for that to land, then clears itself once settings agree.
-  property string vizStyleOverride: ""
-  readonly property string vizStyle: vizStyleOverride !== "" ? vizStyleOverride : setting("style", "bars")
-  onSettingsChanged: if (vizStyleOverride !== "" && setting("style", "bars") === vizStyleOverride) vizStyleOverride = ""
+  // The picker just writes the setting; the bar patches it back into every
+  // surface within a frame or two. An earlier version also kept a local
+  // override to paint the choice instantly, but a stale override could
+  // shadow shell.json indefinitely — not worth the few hundred ms.
+  readonly property string vizStyle: settings && settings.style ? String(settings.style) : "bars"
+
+  readonly property bool pauseOnPowerSaver: setting("pauseOnPowerSaver", true)
+  property bool powerSaverActive: false
+
+  // "Off" is a real off switch, not a blank style: it stops cava outright.
+  // Power-saver does the same without touching the saved style, so the
+  // visualizer comes back by itself when the profile changes.
+  readonly property bool vizStyleOff: vizStyle === "none"
+  readonly property bool powerSaverSuppressed: pauseOnPowerSaver && powerSaverActive
+  readonly property bool vizSuppressed: vizStyleOff || powerSaverSuppressed
 
   readonly property bool barVertical: bar ? bar.vertical : false
   readonly property int vizExtent: Math.max(2, Math.round((bar ? bar.barSize : 26) * vizHeightPercent / 100))
@@ -55,23 +65,30 @@ Panel {
 
   // Silence falls back to the plain speaker icon, and so does a cava that
   // never produced a frame — better a working volume widget than a gap.
-  readonly property bool showSpectrum: (!vizAutoHide || vizLive) && !barCava.failed
+  readonly property bool showSpectrum: !vizSuppressed && (!vizAutoHide || vizLive) && !barCava.failed
 
   // The open-panel dot tracks the icon rather than the full spectrum width.
   readonly property real openPanelIndicatorWidth: Math.max(10, Math.round(button.implicitWidth * 0.55))
   readonly property real openPanelIndicatorHeight: Math.max(10, Math.round(button.implicitHeight * 0.55))
 
-  // Broadcast paints the new choice on every monitor at once; the write to
-  // shell.json is what makes it survive a restart. The override exists only
-  // to cover the few hundred ms before that write loops back as settings.
   function setVizStyle(value) {
     if (!value || value === root.vizStyle) return
-    CavaHub.publishStyle(value)
     if (root.bar) root.bar.run("omarchy bar set " + root.moduleName + " style "
                                + root.bar.shellQuote(value))
   }
 
-  function vizOnStyle(style) { root.vizStyleOverride = style }
+  function vizOnPowerSave(active) { root.powerSaverActive = active }
+
+  function updatePowerProfile(text) {
+    var lines = String(text).split("\n")
+    for (var i = 0; i < lines.length; i++) {
+      var parts = lines[i].split("\t")
+      if (parts.length >= 2 && parts[1].trim() === "1") {
+        CavaHub.publishPowerSave(parts[0].trim() === "power-saver")
+        return
+      }
+    }
+  }
 
   function vizOnFrame(levels, peak) {
     root.vizLevels = levels
@@ -84,7 +101,7 @@ Panel {
   function vizTryClaim() { root.vizOwner = CavaHub.claim(root) }
 
   Component.onCompleted: {
-    root.vizHubId = CavaHub.subscribe(root.vizOnFrame, root.vizOnStyle)
+    root.vizHubId = CavaHub.subscribe(root.vizOnFrame, root.vizOnPowerSave)
     root.vizLevels = CavaHub.lastLevels()
     root.vizTryClaim()
   }
@@ -102,7 +119,7 @@ Panel {
     noiseReduction: root.vizNoise
     channels: root.vizChannels
     source: root.vizSource
-    running: root.vizOwner
+    running: root.vizOwner && !root.vizSuppressed
     onFrame: function(levels, peak) { CavaHub.publish(levels, peak) }
   }
 
@@ -114,7 +131,7 @@ Panel {
     noiseReduction: root.vizNoise
     channels: root.vizChannels
     source: root.vizSource
-    running: root.opened
+    running: root.opened && !root.vizSuppressed
     onFrame: function(levels, peak) { root.vizPanelLevels = levels }
   }
 
@@ -124,6 +141,23 @@ Panel {
     repeat: true
     running: !root.vizOwner
     onTriggered: root.vizTryClaim()
+  }
+
+  Process {
+    id: powerProfileProc
+    command: ["omarchy-powerprofiles-list", "--active-state"]
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: root.updatePowerProfile(text)
+    }
+  }
+
+  Timer {
+    interval: 60000
+    repeat: true
+    triggeredOnStart: true
+    running: root.vizOwner && root.pauseOnPowerSaver
+    onTriggered: if (!powerProfileProc.running) powerProfileProc.running = true
   }
 
   Timer {
@@ -949,7 +983,7 @@ Panel {
 
               Spectrum {
                 anchors.centerIn: parent
-                visible: !panelCava.failed
+                visible: !panelCava.failed && !root.vizSuppressed
                 levels: root.vizPanelLevels
                 bandCount: root.vizPanelBars
                 gap: root.vizPanelGap
@@ -968,8 +1002,10 @@ Panel {
 
               Text {
                 anchors.centerIn: parent
-                visible: panelCava.failed
-                text: "No audio stream"
+                visible: panelCava.failed || root.vizSuppressed
+                text: root.vizStyleOff ? "Visualizer off"
+                    : root.powerSaverSuppressed ? "Paused on power saver"
+                    : "No audio stream"
                 color: Qt.darker(root.bar.foreground, 1.4)
                 font.family: root.bar.fontFamily
                 font.pixelSize: Style.font.caption

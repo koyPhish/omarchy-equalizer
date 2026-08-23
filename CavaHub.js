@@ -31,9 +31,9 @@ function hasOwner() {
   return _owner !== null && _owner !== undefined
 }
 
-function subscribe(onFrame, onStyle) {
+function subscribe(onFrame, onPowerSave) {
   var id = _nextId++
-  _subscribers.push({ id: id, onFrame: onFrame, onStyle: onStyle })
+  _subscribers.push({ id: id, onFrame: onFrame, onPowerSave: onPowerSave })
   return id
 }
 
@@ -52,10 +52,10 @@ function publish(levels, peak) {
   for (var i = 0; i < _subscribers.length; i++) _subscribers[i].onFrame(levels, peak)
 }
 
-// The style picker takes effect on every monitor at once, rather than each
-// surface waiting to notice the shell.json write independently.
-function publishStyle(style) {
-  for (var i = 0; i < _subscribers.length; i++) _subscribers[i].onStyle(style)
+// Only the surface that owns cava polls the power profile, so the answer has
+// to reach the others the same way frames do.
+function publishPowerSave(active) {
+  for (var i = 0; i < _subscribers.length; i++) _subscribers[i].onPowerSave(active)
 }
 
 // A surface mounted after the first frame would otherwise draw nothing until
