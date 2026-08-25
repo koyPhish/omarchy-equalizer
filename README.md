@@ -5,7 +5,7 @@ speaker icon. It is a drop-in replacement for `omarchy.audio`: same volume
 slider, output picker and per-app mixer, plus a visualizer.
 
 <p align="center">
-  <img src="preview.png" alt="The audio panel with its visualizer" width="420">
+  <img src="preview.png" alt="The spectrum running in the Omarchy bar, with the audio panel open below it" width="420">
 </p>
 
 [cava](https://github.com/karlstav/cava) does the FFT against the default
