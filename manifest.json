@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "author": "koyPhish",
   "license": "MIT",
-  "description": "The Omarchy audio widget with a live cava spectrum in place of the speaker icon",
+  "description": "A live audio spectrum in your Omarchy bar. A drop-in replacement for the built-in audio widget: the speaker icon becomes a cava-driven equalizer while sound is playing, and folds back to the icon when it stops. Click through for the full audio panel \u2014 volume, output picker, per-app mixer \u2014 plus a large visualizer and four styles: bars, grounded, blocks and dots. Requires cava: run omarchy pkg add cava before enabling.",
   "homepage": "https://github.com/koyPhish/omarchy-audio-visualizer",
   "kinds": [
     "bar-widget"

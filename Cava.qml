@@ -20,6 +20,7 @@ Item {
 
   property bool everRead: false
   property bool failed: false
+  property bool missing: false
   property bool _ready: false
 
   signal frame(var levels, int peak)
@@ -61,6 +62,7 @@ Item {
   function hardRestart() {
     root.everRead = false
     root.failed = false
+    root.missing = false
     proc.running = false
     if (root.running) {
       restartTimer.restart()
@@ -84,6 +86,7 @@ Item {
 
     root.everRead = true
     root.failed = false
+    root.missing = false
     root.frame(levels, peak)
   }
 
@@ -98,6 +101,14 @@ Item {
       onRead: function(data) { root.consume(data) }
     }
     onExited: function(exitCode, exitStatus) {
+      // bash exits 127 when cava is not installed. That is worth telling the
+      // user apart from a running cava with nothing to report, so the panel
+      // can name the real cause instead of blaming the audio stream.
+      if (exitCode === 127 && !root.everRead) {
+        root.missing = true
+        root.failed = true
+      }
+      // Keep retrying either way: installing cava recovers without a restart.
       if (root.running) retryTimer.restart()
     }
   }

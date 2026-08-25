@@ -1006,9 +1006,13 @@ Panel {
 
               Text {
                 anchors.centerIn: parent
+                width: panelSpectrumFrame.width - Style.space(16)
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WordWrap
                 visible: panelCava.failed || root.vizSuppressed
                 text: root.vizStyleOff ? "Visualizer off"
                     : root.powerSaverSuppressed ? "Paused on power saver"
+                    : panelCava.missing ? "cava is not installed\nomarchy pkg add cava"
                     : "No audio stream"
                 color: Qt.darker(root.bar.foreground, 1.4)
                 font.family: root.bar.fontFamily
